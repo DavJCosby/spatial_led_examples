@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 rs_ws281x = "0.5.1"
-sled = {git = "https://github.com/DavJCosby/sled/", default-features = false, features = ["drivers"]}
+spatial_led = "0.2"
 rand = {version = "0.8.5", default-features = false, features = ["std", "std_rng"]}
 
 [profile.release]

@@ -1,9 +1,9 @@
 use driver_macros::*;
 use rand::Rng;
-use sled::driver::{BufferContainer, Driver, TimeInfo};
-use sled::{driver_macros, SledResult};
+use spatial_led::driver::{BufferContainer, Driver, TimeInfo};
+use spatial_led::{driver_macros, SledResult};
 
-use sled::{color::Rgb, Sled, Vec2};
+use spatial_led::{color::Rgb, Sled, Vec2};
 use std::ops::Range;
 
 const MAX_RIPPLES: usize = 12;

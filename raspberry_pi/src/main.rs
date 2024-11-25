@@ -1,7 +1,5 @@
-use std::time::Instant;
-
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder};
-use sled::{color::Srgb, Sled};
+use spatial_led::{color::Srgb, Sled};
 
 mod effects;
 
