@@ -38,3 +38,8 @@ Mostly just used as a benchmark as it requires a *ton* of `set_at_angle()` calls
 cargo run --example comet
 ```
 [![asciicast](https://asciinema.org/a/683189.svg)](https://asciinema.org/a/683189)
+
+# Embers
+Animates a rigid multi-fractal noise pattern across the room, mapping the noise output to a color ramp. Credit to [Inkpendude](https://twitter.com/inkpendude) for the [Midnight Ablaze](https://lospec.com/palette-list/midnight-ablaze) color palette used by default for this effect.
+
+[![asciicast](https://asciinema.org/a/693835.svg)](https://asciinema.org/a/693835)

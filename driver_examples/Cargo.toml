@@ -11,3 +11,4 @@ rand = { version = "0.8", default-features = false, features = [
     "std",
     "std_rng",
 ] }
+noise = "0.9"
