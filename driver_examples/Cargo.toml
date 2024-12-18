@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-spatial_led = "0.2"
+spatial_led = "0.3"
+palette = "0.7"
 ratatui = { version = "0.29", features = ["crossterm"] }
 crossterm = { version = "0.28" }
 rand = { version = "0.8", default-features = false, features = [

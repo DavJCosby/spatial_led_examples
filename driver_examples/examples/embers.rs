@@ -1,7 +1,6 @@
+use palette::{chromatic_adaptation::AdaptInto, rgb::Rgb, Mix, Oklab, Srgb};
 use spatial_led::{
-    color::{chromatic_adaptation::AdaptInto, Mix, Oklab, Srgb},
-    driver::{BufferContainer, Driver, TimeInfo},
-    driver_macros::*,
+    driver::{Data, Driver, Time},
     scheduler::Scheduler,
     Sled, SledResult, Vec2,
 };
@@ -13,6 +12,12 @@ use noise::{MultiFractal, NoiseFn, Perlin, RidgedMulti};
 mod tui;
 use tui::SledTerminalDisplay;
 
+#[derive(Debug)]
+struct NoiseSettings {
+    noise_size: f64,
+    time_scale: f64,
+}
+
 fn main() {
     let sled = Sled::new("./complex_room.yap").unwrap();
     let mut display = SledTerminalDisplay::start("Embers", sled.domain());
@@ -22,13 +27,13 @@ fn main() {
     let mut scheduler = Scheduler::new(500.0);
     scheduler.loop_until_err(|| {
         driver.step();
-        display.set_leds(driver.colors_and_positions_coerced());
+        display.set_leds(driver.colors_and_positions());
         display.refresh()?;
         Ok(())
     });
 }
 
-pub fn build_driver() -> Driver {
+pub fn build_driver() -> Driver<Rgb> {
     let mut driver = Driver::new();
 
     driver.set_startup_commands(startup);
@@ -36,9 +41,8 @@ pub fn build_driver() -> Driver {
     return driver;
 }
 
-#[startup_commands]
-fn startup(buffers: &mut BufferContainer) -> SledResult {
-    let colors = buffers.create_buffer::<(f32, Oklab)>("colors");
+fn startup(_sled: &mut Sled<Rgb>, data: &mut Data) -> SledResult {
+    let colors = data.store::<Vec<(f32, Oklab)>>("colors", vec![]);
 
     // Credit to Inkpendude for the Midnight Ablaze Color Palette
     // https://lospec.com/palette-list/midnight-ablaze
@@ -53,17 +57,18 @@ fn startup(buffers: &mut BufferContainer) -> SledResult {
         (1.0, Srgb::new(1.0, 1.0, 1.0).adapt_into()),
     ]);
 
-    let noise_controls = buffers.create_buffer::<f64>("noise_controls");
-    noise_controls.extend([
-        1.25, // noise size
-        0.2,  // time scale
-    ]);
+    data.set::<NoiseSettings>(
+        "noise_settings",
+        NoiseSettings {
+            noise_size: 1.25,
+            time_scale: 0.2,
+        },
+    );
 
-    let move_vec = buffers.create_buffer::<Vec2>("move_vec");
-    move_vec.push(Vec2::new(0.0, -0.2));
+    data.set::<Vec2>("move_vec", Vec2::new(0.0, -0.2));
 
-    let generator = buffers.create_buffer("generator");
-    generator.push(
+    data.set(
+        "generator",
         RidgedMulti::<Perlin>::new(ThreadRng::default().gen_range(0..10_000))
             .set_octaves(4)
             .set_lacunarity(3.5)
@@ -74,16 +79,15 @@ fn startup(buffers: &mut BufferContainer) -> SledResult {
     Ok(())
 }
 
-#[draw_commands]
-fn draw(sled: &mut Sled, buffers: &BufferContainer, time_info: &TimeInfo) -> SledResult {
-    let generator: &RidgedMulti<Perlin> = buffers.get_buffer_item("generator", 0)?;
+fn draw(sled: &mut Sled<Rgb>, data: &Data, time_info: &Time) -> SledResult {
+    let generator: &RidgedMulti<Perlin> = data.get("generator")?;
 
-    let noise_controls = buffers.get_buffer::<f64>("noise_controls")?;
-    let colors = buffers.get_buffer::<(f32, Oklab)>("colors")?;
-    let move_vec = buffers.get_buffer::<Vec2>("move_vec")?[0];
+    let noise_settings: &NoiseSettings = data.get("noise_settings")?;
+    let colors: &Vec<(f32, Oklab)> = data.get("colors")?;
+    let move_vec: &Vec2 = data.get("move_vec")?;
 
-    let size = noise_controls[0];
-    let time_scale = noise_controls[1];
+    let size = noise_settings.noise_size;
+    let time_scale = noise_settings.time_scale;
 
     let elapsed_scaled = time_info.elapsed.as_secs_f64() * time_scale;
     sled.map_by_pos(|pos| {

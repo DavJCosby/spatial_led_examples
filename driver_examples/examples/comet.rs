@@ -1,10 +1,10 @@
 use spatial_led::{
-    color::Rgb,
-    driver::{Driver, TimeInfo},
-    driver_macros::*,
+    driver::{Data, Driver, Time},
     scheduler::Scheduler,
     Sled, SledResult,
 };
+
+use palette::rgb::Rgb;
 
 use std::f32::consts::TAU;
 const INV_TAU: f32 = 1.0 / TAU;
@@ -31,20 +31,19 @@ fn main() {
     let mut scheduler = Scheduler::new(500.0);
     scheduler.loop_until_err(|| {
         driver.step();
-        display.set_leds(driver.colors_and_positions_coerced());
+        display.set_leds(driver.colors_and_positions());
         display.refresh()?;
         Ok(())
     });
 }
 
-pub fn build_driver() -> Driver {
+pub fn build_driver() -> Driver<Rgb> {
     let mut driver = Driver::new();
     driver.set_draw_commands(draw);
     driver
 }
 
-#[draw_commands]
-fn draw(sled: &mut Sled, time_info: &TimeInfo) -> SledResult {
+fn draw(sled: &mut Sled<Rgb>, _data: &Data, time_info: &Time) -> SledResult {
     let elapsed = time_info.elapsed.as_secs_f32();
 
     let inner_time_scale = elapsed / GREEN_RADIUS;
