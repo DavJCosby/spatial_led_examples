@@ -1,10 +1,10 @@
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder};
-use spatial_led::{color::Srgb, Sled};
-
+use palette::rgb::Rgb;
+use spatial_led::Sled;
 mod effects;
 
 fn main() {
-    let sled = Sled::new("./config.yap").unwrap();
+    let sled = Sled::<Rgb>::new("./config.yap").unwrap();
     let num_leds = sled.num_leds();
     println!("Starting SLED system of {} LEDs.", num_leds);
 
@@ -36,7 +36,7 @@ fn construct_gpio_controller(num_leds: usize) -> Controller {
         .unwrap()
 }
 
-fn update_gpio<'a>(controller: &mut Controller, colors: impl Iterator<Item = &'a Srgb>) {
+fn update_gpio<'a>(controller: &mut Controller, colors: impl Iterator<Item = &'a Rgb>) {
     let leds = controller.leds_mut(0);
 
     let mut i = 0;

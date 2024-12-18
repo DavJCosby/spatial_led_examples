@@ -7,7 +7,8 @@ edition = "2021"
 
 [dependencies]
 rs_ws281x = "0.5.1"
-spatial_led = "0.2"
+spatial_led = "0.3"
+palette = "0.7"
 rand = {version = "0.8.5", default-features = false, features = ["std", "std_rng"]}
 
 [profile.release]
