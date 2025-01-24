@@ -1,3 +1,4 @@
+use spatial_led::Sled;
 
 const ROOM_CONFIG: &str = "center: (1.75, 0.5) \n
 density: 45 \n
